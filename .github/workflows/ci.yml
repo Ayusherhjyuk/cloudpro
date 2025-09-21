@@ -62,11 +62,7 @@ jobs:
           kubectl delete job test-job --ignore-not-found
           kubectl create job --from=cronjob/s3-processor-cron test-job
 
-          - name: Verify Image in Minikube
-        run: |
-            eval $(minikube docker-env)
-            docker images | grep s3-processor
-
+          
 
       # 10. Wait for Job completion
             # 10. Wait for Job completion
