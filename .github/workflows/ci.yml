@@ -76,3 +76,16 @@ jobs:
         run: |
           POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
           kubectl exec -i $POD -- awslocal s3 ls s3://processed-data/
+ 
+            # 13. Download processed output locally
+      - name: Download Processed Output
+        run: |
+          POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
+          kubectl exec -i $POD -- awslocal s3 cp s3://processed-data/output.csv /tmp/output.csv
+
+      # 14. Upload as GitHub Actions artifact
+      - name: Upload Output Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: processed-output
+          path: /tmp/output.csv
