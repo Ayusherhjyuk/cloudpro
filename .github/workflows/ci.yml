@@ -34,7 +34,7 @@ jobs:
           kubectl apply -f k8s/localstack-service.yaml
 
       # 5. Wait for LocalStack pod ready
-      - - name: Wait for LocalStack Ready
+      - name: Wait for LocalStack Ready
         run: kubectl wait --for=condition=ready pod -l app=localstack --timeout=300s
 
 
