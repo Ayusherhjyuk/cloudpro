@@ -71,19 +71,21 @@ jobs:
       - name: Fetch Job Logs
         run: kubectl logs -l job-name=test-job --tail=100
 
-      # 12. Verify output file in LocalStack
+            # 12. Verify output file in LocalStack
       - name: Verify Output in Processed Bucket
         run: |
           POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
+          echo "Listing files in processed-data bucket..."
           kubectl exec -i $POD -- awslocal s3 ls s3://processed-data/
- 
-            # 13. Download processed output locally
-      - name: Download Processed Output
-      run: |
-        POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
-        kubectl exec -i $POD -- awslocal s3 cp s3://processed-data/output.csv /tmp/output.csv || true
-        kubectl cp $POD:/tmp/output.csv /tmp/output.csv || true
 
+      # 13. Download processed output locally
+      - name: Download Processed Output
+        run: |
+          POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
+          # Copy from LocalStack S3 -> pod filesystem
+          kubectl exec -i $POD -- awslocal s3 cp s3://processed-data/output.csv /tmp/output.csv || true
+          # Copy from pod -> GitHub Actions runner
+          kubectl cp $POD:/tmp/output.csv /tmp/output.csv || true
 
       # 14. Upload as GitHub Actions artifact
       - name: Upload Output Artifact
