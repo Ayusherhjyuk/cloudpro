@@ -20,6 +20,46 @@ This architecture mirrors a production-ready AWS environment but runs entirely o
 It allows seamless migration to AWS with minimal changes, while still enabling end-to-end testing, CI/CD integration, and validation of the workflow.
 
 ---
+
+
+## 📌 Problem Statement
+
+We need to build a **data pipeline** that:  
+
+1. Reads a CSV file from an S3 bucket (`raw-data`).  
+2. Transforms the data (converts the `name` column to **uppercase**).  
+3. Writes the transformed result back to another S3 bucket (`processed-data`).  
+
+
+## 📊 Input Data Format
+
+**File:** `sample_input_data.csv` (stored in `raw-data` bucket)  
+
+| id | name      | age | email                        | department   |
+|----|-----------|-----|------------------------------|--------------|
+| 1  | Margaret  | 55  | margaret_1@example.com       | Sales        |
+| 2  | Jonathan  | 39  | jonathan_2@example.com       | Sales        |
+| 3  | Michelle  | 38  | michelle_3@example.com       | Sales        |
+| 4  | Amy       | 28  | amy_4@example.com            | Engineering  |
+| 5  | Tina      | 57  | tina_5@example.com           | Marketing    |
+
+---
+
+## 📊 Output Data Format
+
+**File:** `output.csv` (written to `processed-data` bucket)  
+
+| id | name      | age | email                        | department   |
+|----|-----------|-----|------------------------------|--------------|
+| 1  | MARGARET  | 55  | margaret_1@example.com       | Sales        |
+| 2  | JONATHAN  | 39  | jonathan_2@example.com       | Sales        |
+| 3  | MICHELLE  | 38  | michelle_3@example.com       | Sales        |
+| 4  | AMY       | 28  | amy_4@example.com            | Engineering  |
+| 5  | TINA      | 57  | tina_5@example.com           | Marketing    |
+
+---
+
+---
 ## 📂 Project Folder Structure
 ```
 truegradient_assign/
