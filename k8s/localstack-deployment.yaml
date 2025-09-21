@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: localstack
+  labels:
+    app: localstack
 spec:
   replicas: 1
   selector:
@@ -19,19 +21,13 @@ spec:
         - containerPort: 4566
         env:
         - name: SERVICES
-          value: s3
-        volumeMounts:
-        - name: data-volume
-          mountPath: /tmp/data
-      volumes:
-      - name: data-volume
-        hostPath:
-          path: C:\Dev\truegradient_assign\data  # path on your host
-          type: Directory
-          readinessProbe:
-        httpGet:
-          path: /
-          port: 4566
-        initialDelaySeconds: 10
-        periodSeconds: 5
-        failureThreshold: 12
+          value: "s3"
+        - name: DEBUG
+          value: "1"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 4566
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 12
