@@ -3,7 +3,7 @@
 
 ⚡ **Note:** Due to AWS Free Tier limitations, my previous account had already exhausted its quota.
 When I created a new AWS account, the verification process required 1–2 days before access to services could be granted.
-Since I was working against strict time constraints, directly using AWS was not feasible for this task.
+Since I was time bound to submit the assignment , directly using AWS was not feasible for this task.
 
 
 ## ⚡ Local AWS-Equivalent Setup
