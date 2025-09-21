@@ -59,6 +59,11 @@ We need to build a **data pipeline** that:
 
 ---
 
+## 🔍 CI/CD Pipeline Run
+
+![CI/CD Pipeline Screenshot](https://drive.google.com/uc?export=view&id=1CSIOI_urC2adJruYRmQxGqwSOLYy6Xt5)
+
+
 ---
 ## 📂 Project Folder Structure
 ```
