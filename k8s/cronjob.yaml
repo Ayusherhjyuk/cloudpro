@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: s3-processor-cron
+spec:
+  schedule: "0 0 * * *"   # runs daily at midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: s3-processor
+            image: s3-processor:latest
+            imagePullPolicy: Never   # use local image in Minikube
+            env:
+            - name: AWS_ACCESS_KEY_ID
+              value: "test"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "test"
+            - name: AWS_DEFAULT_REGION
+              value: "us-east-1"
+            - name: RAW_BUCKET
+              value: "raw-data"
+            - name: PROCESSED_BUCKET
+              value: "processed-data"
+            - name: INPUT_KEY
+              value: "input.csv"
+            - name: OUTPUT_KEY
+              value: "output.csv"
+            - name: AWS_ENDPOINT_URL
+              value: "http://localstack:4566"
+            resources:
+              requests:
+                cpu: "100m"       # minimum 0.1 CPU
+                memory: "128Mi"   # minimum 128 MB RAM
+              limits:
+                cpu: "500m"       # max 0.5 CPU
+                memory: "512Mi"   # max 512 MB RAM
+          restartPolicy: Never

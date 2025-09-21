@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack
+  template:
+    metadata:
+      labels:
+        app: localstack
+    spec:
+      containers:
+      - name: localstack
+        image: localstack/localstack:latest
+        ports:
+        - containerPort: 4566
+        env:
+        - name: SERVICES
+          value: s3
+        volumeMounts:
+        - name: data-volume
+          mountPath: /tmp/data
+      volumes:
+      - name: data-volume
+        hostPath:
+          path: C:\Dev\truegradient_assign\data  # path on your host
+          type: Directory
