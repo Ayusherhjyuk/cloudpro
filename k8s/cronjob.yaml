@@ -11,7 +11,7 @@ spec:
           containers:
           - name: s3-processor
             image: s3-processor:latest
-            imagePullPolicy: IfNotPresent   # use local image in Minikube
+            imagePullPolicy: IfNotPresent   
             env:
             - name: AWS_ACCESS_KEY_ID
               value: "test"
@@ -31,9 +31,9 @@ spec:
               value: "http://localstack:4566"
             resources:
               requests:
-                cpu: "100m"       # minimum 0.1 CPU
-                memory: "128Mi"   # minimum 128 MB RAM
+                cpu: "100m"      
+                memory: "128Mi"  
               limits:
-                cpu: "500m"       # max 0.5 CPU
-                memory: "512Mi"   # max 512 MB RAM
+                cpu: "500m"       
+                memory: "512Mi"  
           restartPolicy: Never
