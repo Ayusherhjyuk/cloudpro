@@ -37,6 +37,7 @@ jobs:
       - name: Wait for LocalStack Ready
         run: kubectl wait --for=condition=ready pod -l app=localstack --timeout=300s
 
+
       # 6. Create S3 buckets
       - name: Create Buckets
         run: |
@@ -55,19 +56,22 @@ jobs:
       - name: Deploy CronJob
         run: kubectl apply -f k8s/cronjob.yaml
 
-      # 9. Run Job manually (non-blocking for CI)
-      - name: Run Test Job (non-blocking)
+      # 9. Run Job manually for testing
+      - name: Run Test Job
         run: |
           kubectl delete job test-job --ignore-not-found
-          kubectl create job --from=cronjob/s3-processor-cron test-job || true
-          echo "Skipping job wait step for CI pipeline ✅"
+          kubectl create job --from=cronjob/s3-processor-cron test-job
 
-      # 10. Fetch Job Logs (non-blocking)
+      # 10. Wait for Job completion
+      - name: Wait for Job Completion
+        run: kubectl wait --for=condition=complete job/test-job --timeout=60s
+
+      # 11. Fetch Job Logs
       - name: Fetch Job Logs
-        run: kubectl logs -l job-name=test-job --tail=100 || echo "Logs not available (image not pulled)"
+        run: kubectl logs -l job-name=test-job --tail=100
 
-      # 11. Verify output file in LocalStack (non-blocking)
+      # 12. Verify output file in LocalStack
       - name: Verify Output in Processed Bucket
         run: |
           POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
-          kubectl exec -i $POD -- awslocal s3 ls s3://processed-data/ || echo "No output yet"
+          kubectl exec -i $POD -- awslocal s3 ls s3://processed-data/
