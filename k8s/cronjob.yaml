@@ -11,7 +11,7 @@ spec:
           containers:
           - name: s3-processor
             image: s3-processor:latest
-            imagePullPolicy: Never   # use local image in Minikube
+            imagePullPolicy: IfNotPresent   # use local image in Minikube
             env:
             - name: AWS_ACCESS_KEY_ID
               value: "test"

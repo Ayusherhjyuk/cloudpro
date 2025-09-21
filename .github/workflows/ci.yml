@@ -62,11 +62,17 @@ jobs:
           kubectl delete job test-job --ignore-not-found
           kubectl create job --from=cronjob/s3-processor-cron test-job
 
+          - name: Verify Image in Minikube
+        run: |
+            eval $(minikube docker-env)
+            docker images | grep s3-processor
+
+
       # 10. Wait for Job completion
             # 10. Wait for Job completion
       - name: Wait for Job Completion (robust)
         run: |
-          kubectl wait --for=condition=complete job/test-job --timeout=600s || true
+          kubectl wait --for=condition=complete job/test-job --timeout=60s || true
           STATUS=$(kubectl get job test-job -o jsonpath='{.status.succeeded}')
           if [ "$STATUS" = "1" ]; then
             echo "Job completed successfully ✅"
