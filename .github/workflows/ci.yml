@@ -19,56 +19,53 @@ jobs:
         with:
           driver: docker
 
-      # 2. Use Minikube's Docker
-      - name: Point Docker to Minikube
-        run: eval $(minikube docker-env)
+      # 2. Point Docker to Minikube
+      - name: Set up Docker with Minikube
+        run: |
+          eval $(minikube docker-env)
+          docker build -t s3-processor:latest .
 
-      # 3. Build Docker image
-      - name: Build Processor Image
-        run: docker build -t s3-processor:latest .
-
-      # 4. Deploy LocalStack Deployment + Service
+      # 3. Deploy LocalStack
       - name: Deploy LocalStack
         run: |
           kubectl apply -f k8s/localstack-deployment.yaml
           kubectl apply -f k8s/localstack-service.yaml
 
-      # 5. Wait for LocalStack pod ready
+      # 4. Wait for LocalStack pod ready
       - name: Wait for LocalStack Ready
         run: kubectl wait --for=condition=ready pod -l app=localstack --timeout=300s
 
-
-      # 6. Create S3 buckets
+      # 5. Create S3 buckets
       - name: Create Buckets
         run: |
           POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
           kubectl exec -i $POD -- awslocal s3 mb s3://raw-data || true
           kubectl exec -i $POD -- awslocal s3 mb s3://processed-data || true
 
-      # 7. Upload sample input
+      # 6. Upload sample input
       - name: Upload Sample Input
         run: |
           POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
           kubectl cp data/sample_input_data.csv $POD:/tmp/sample_input_data.csv
           kubectl exec -i $POD -- awslocal s3 cp /tmp/sample_input_data.csv s3://raw-data/input.csv
 
-      # 8. Deploy CronJob
+      # 7. Deploy CronJob
       - name: Deploy CronJob
         run: kubectl apply -f k8s/cronjob.yaml
 
-      # 9. Run Job manually for testing
+      # 8. Run Job manually for testing
       - name: Run Test Job
         run: |
           kubectl delete job test-job --ignore-not-found
           kubectl create job --from=cronjob/s3-processor-cron test-job
 
+      # 9. Debug Pods
       - name: Debug Pods
         run: kubectl get pods -o wide
 
-
       # 10. Wait for Job completion
       - name: Wait for Job Completion
-        run: kubectl wait --for=condition=complete job/test-job --timeout=60s
+        run: kubectl wait --for=condition=complete job/test-job --timeout=300s
 
       # 11. Fetch Job Logs
       - name: Fetch Job Logs
