@@ -63,8 +63,20 @@ jobs:
           kubectl create job --from=cronjob/s3-processor-cron test-job
 
       # 10. Wait for Job completion
-      - name: Wait for Job Completion
-        run: kubectl wait --for=condition=complete job/test-job --timeout=600s
+      - name: Wait for Job Completion (robust)
+       run: |
+    kubectl wait --for=condition=complete job/test-job --timeout=600s || true
+    STATUS=$(kubectl get job test-job -o jsonpath='{.status.succeeded}')
+    if [ "$STATUS" = "1" ]; then
+      echo "Job completed successfully ✅"
+    else
+      echo "Job did not succeed ❌"
+      kubectl get pods -l job-name=test-job
+      kubectl describe pod -l job-name=test-job
+      kubectl logs -l job-name=test-job --tail=100
+      exit 1
+    fi
+
 
       # 11. Fetch Job Logs
       - name: Fetch Job Logs
