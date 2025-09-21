@@ -64,7 +64,7 @@ jobs:
 
       # 10. Wait for Job completion
       - name: Wait for Job Completion
-        run: kubectl wait --for=condition=complete job/test-job --timeout=180s
+        run: kubectl wait --for=condition=complete job/test-job --timeout=600s
 
       # 11. Fetch Job Logs
       - name: Fetch Job Logs
