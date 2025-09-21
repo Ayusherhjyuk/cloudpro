@@ -27,34 +27,50 @@ jobs:
       - name: Build Processor Image
         run: docker build -t s3-processor:latest .
 
-      # 4. Deploy LocalStack
+      # 4. Deploy LocalStack Deployment + Service
       - name: Deploy LocalStack
-        run: kubectl apply -f k8s/localstack.yaml
+        run: |
+          kubectl apply -f k8s/localstack-deployment.yaml
+          kubectl apply -f k8s/localstack-service.yaml
 
-      # 5. Wait for LocalStack ready
-      - name: Wait for LocalStack
+      # 5. Wait for LocalStack pod ready
+      - name: Wait for LocalStack Ready
         run: kubectl wait --for=condition=ready pod -l app=localstack --timeout=120s
 
-      # 6. Deploy CronJob
+      # 6. Create S3 buckets
+      - name: Create Buckets
+        run: |
+          POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
+          kubectl exec -i $POD -- awslocal s3 mb s3://raw-data || true
+          kubectl exec -i $POD -- awslocal s3 mb s3://processed-data || true
+
+      # 7. Upload sample input
+      - name: Upload Sample Input
+        run: |
+          POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
+          kubectl cp data/sample_input_data.csv $POD:/tmp/sample_input_data.csv
+          kubectl exec -i $POD -- awslocal s3 cp /tmp/sample_input_data.csv s3://raw-data/input.csv
+
+      # 8. Deploy CronJob
       - name: Deploy CronJob
         run: kubectl apply -f k8s/cronjob.yaml
 
-      # 7. Run Job manually for testing
+      # 9. Run Job manually for testing
       - name: Run Test Job
         run: |
           kubectl delete job test-job --ignore-not-found
           kubectl create job --from=cronjob/s3-processor-cron test-job
 
-      # 8. Wait for Job to complete
+      # 10. Wait for Job completion
       - name: Wait for Job Completion
-        run: kubectl wait --for=condition=complete job/test-job --timeout=120s
+        run: kubectl wait --for=condition=complete job/test-job --timeout=180s
 
-      # 9. Get Logs
+      # 11. Fetch Job Logs
       - name: Fetch Job Logs
         run: kubectl logs -l job-name=test-job --tail=100
 
-      # 10. Verify Output (download file from LocalStack)
-      - name: Check Output in S3
+      # 12. Verify output file in LocalStack
+      - name: Verify Output in Processed Bucket
         run: |
-          kubectl exec -it $(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}') \
-            -- awslocal s3 ls s3://processed-data/
+          POD=$(kubectl get pod -l app=localstack -o jsonpath='{.items[0].metadata.name}')
+          kubectl exec -i $POD -- awslocal s3 ls s3://processed-data/
