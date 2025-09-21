@@ -20,6 +20,32 @@ This architecture mirrors a production-ready AWS environment but runs entirely o
 It allows seamless migration to AWS with minimal changes, while still enabling end-to-end testing, CI/CD integration, and validation of the workflow.
 
 ---
+## 📂 Project Folder Structure
+```
+truegradient_assign/
+│── .github/
+│ └── workflows/
+│ └── ci.yml # GitHub Actions workflow
+│
+│── app/
+│ ├── process.py # Python script that processes the data
+│ └── requirements.txt # Python dependencies
+│
+│── data/
+│ └── sample_input_data.csv # Example input file
+│
+│── k8s/
+│ ├── cronjob.yaml # CronJob definition
+│ ├── localstack-deployment.yaml # LocalStack Deployment
+│ └── localstack-service.yaml # LocalStack Service
+│
+│── docker-compose.yml # Optional Docker Compose setup
+│── dockerfile # Dockerfile for s3-processor image
+│── output.csv # Example output file (generated)
+│── README.md # Documentation (deployment steps, IAM, CI/CD, assumptions)
+
+```
+---
 
 ## 🚀 Steps to Deploy the Solution
 
