@@ -28,3 +28,10 @@ spec:
         hostPath:
           path: C:\Dev\truegradient_assign\data  # path on your host
           type: Directory
+          readinessProbe:
+        httpGet:
+          path: /
+          port: 4566
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        failureThreshold: 12
