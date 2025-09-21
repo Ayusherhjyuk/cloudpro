@@ -62,6 +62,10 @@ jobs:
           kubectl delete job test-job --ignore-not-found
           kubectl create job --from=cronjob/s3-processor-cron test-job
 
+      - name: Debug Pods
+        run: kubectl get pods -o wide
+
+
       # 10. Wait for Job completion
       - name: Wait for Job Completion
         run: kubectl wait --for=condition=complete job/test-job --timeout=60s
