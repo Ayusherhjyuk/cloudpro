@@ -85,7 +85,7 @@ jobs:
 
       # 14. Upload as GitHub Actions artifact
       - name: Upload Output Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: processed-output
           path: /tmp/output.csv
